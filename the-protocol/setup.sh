@@ -148,7 +148,7 @@ mission0_intro() {
     echo ""
     echo "Your journey begins now."
     echo "Before you start, please enter this command below in your terminal:"
-    echo "export PATH=\"./tools:\$PATH\""
+    echo "export PATH=\"./tools:\$PATH\"" # Corrected PATH instruction
     press_any_key
     set_mission_level 1
 }
@@ -586,7 +586,7 @@ while true; do
             *)
                 echo "Assistant is online, standing by for your next move. Current level: Unknown. Are you sure you're running 'run.sh'?"
                 ;;
-        esac
+        </case>
         echo "-----------------------------------------"
         echo ""
         PREV_LEVEL="$CURRENT_LEVEL"
