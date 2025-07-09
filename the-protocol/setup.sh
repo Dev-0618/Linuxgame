@@ -3,7 +3,9 @@
 # This script sets up the entire "THE PROTOCOL" game environment.
 # It creates directories, empty files, and populates them with initial content.
 
-GAME_DIR="$HOME/game"
+# Define the main game data directory as the current directory where setup.sh is run.
+# This makes the game self-contained within its cloned repository folder.
+GAME_DIR="$(pwd)"
 TOOLS_DIR="$GAME_DIR/tools"
 
 echo "====================================================="
@@ -11,16 +13,16 @@ echo "  Starting setup for THE PROTOCOL – Breach of Node 127.4.7.8"
 echo "====================================================="
 echo ""
 
-# 1. Create the main game directory
+# 1. Create the main game directory (if it doesn't exist, though it should be current pwd)
 mkdir -p "$GAME_DIR"
-echo "✅ Created main game directory: $GAME_DIR"
+echo "✅ Game data will be installed in: $GAME_DIR"
 
 # 2. Create the tools directory
 mkdir -p "$TOOLS_DIR"
 echo "✅ Created tools directory: $TOOLS_DIR"
 
 # 3. Create fake-commands.sh with corrected logic
-cat << 'EOF' > "$TOOLS_DIR/fake-commands.sh"
+cat << 'EOF_FAKE_COMMANDS' > "$TOOLS_DIR/fake-commands.sh"
 #!/bin/bash
 
 # Get the name of the command used to invoke this script (e.g., nmap, ssh, ps, docker)
@@ -58,7 +60,7 @@ if [[ "$COMMAND_NAME" == "ssh" ]]; then
                 echo "--- MISSION 1 COMPLETE ---"
                 echo "Please proceed to Mission 2."
                 # Signal mission completion for run.sh to pick up
-                touch "$HOME/game/mission1_complete" # Use $HOME/game for consistency
+                touch "$(dirname "$0")/../mission1_complete" # Path relative to fake-commands.sh
             else
                 echo "Permission denied, please try again."
             fi
@@ -78,33 +80,33 @@ if [[ "$COMMAND_NAME" == "ps" && "$1" == "aux" ]]; then
     echo "admin        500  0.1  0.5 500000 20000 ?        Sl   Jul08   0:15 /usr/bin/python3 /tmp/rogue_process.py"
     echo "guest          1000  0.0  0.1 200000  4000 ?        S    Jul01   0:00 /usr/bin/gnome-shell"
     # --- FIX FOR MISSION 2 PROGRESSION ---
-    touch "$HOME/game/mission2_complete"
+    touch "$(dirname "$0")/../mission2_complete" # Path relative to fake-commands.sh
     echo "--- Rogue process detected and neutralized! ---" # Added for clarity
     exit 0
 fi
 
 # Simulate docker logs
 if [[ "$COMMAND_NAME" == "docker" && "$1" == "logs" && "$2" == "ai-core-service" ]]; then
-    cat "$HOME/game/mission3/docker_logs.txt" # Use $HOME/game for consistency
+    cat "$(dirname "$0")/../mission3/docker_logs.txt" # Path relative to fake-commands.sh
     exit 0
 fi
 
 # Fallback for unknown commands
 echo "Fake command: $COMMAND_NAME $@"
-EOF
+EOF_FAKE_COMMANDS
 chmod +x "$TOOLS_DIR/fake-commands.sh"
 echo "✅ Created fake-commands.sh with corrected logic."
 
 # 4. Create run.sh
-cat << 'EOF' > "$GAME_DIR/run.sh"
+cat << 'EOF_RUN_SH' > "$GAME_DIR/run.sh"
 #!/bin/bash
 
-GAME_DIR="$HOME/game"
+GAME_DIR="$(pwd)" # This script runs from the game's root directory
 TOOLS_DIR="$GAME_DIR/tools"
 GAME_ENV_FILE="$TOOLS_DIR/game.env"
 
 # IMPORTANT: This PATH export only affects THIS script's subshell.
-# For interactive commands, you MUST run 'export PATH="$TOOLS_DIR:$PATH"' in your main terminal.
+# For interactive commands, you MUST run 'export PATH="./tools:$PATH"' in your main terminal.
 export PATH="$TOOLS_DIR:$PATH"
 
 # Initialize game environment
@@ -145,8 +147,8 @@ mission0_intro() {
     echo "breach, and restore the system to full operational status."
     echo ""
     echo "Your journey begins now."
-    echo "Before you start Please enter this command below"
-    echo "export PATH="$HOME/game/tools:$PATH""
+    echo "Before you start, please enter this command below in your terminal:"
+    echo "export PATH=\"./tools:\$PATH\""
     press_any_key
     set_mission_level 1
 }
@@ -159,15 +161,15 @@ mission1_infiltration() {
     echo ""
     echo "Hint: Use 'nmap' to scan for open ports, then 'ssh' to connect."
     echo "The target IP is 127.0.0.1 (simulated Node 127.4.7.8)."
-    echo "Default admin credentials might be in '~/game/mission1/creds.txt'."
+    echo "Default admin credentials might be in './mission1/creds.txt'."
     echo ""
-    echo "Navigate to the mission directory: cd ~/game/mission1"
+    echo "Navigate to the mission directory: cd ./mission1"
     echo ""
     # Check for mission completion by fake ssh
-    while [[ ! -f "$GAME_DIR/mission1_complete" ]]; do
+    while [[ ! -f "./mission1_complete" ]]; do
         sleep 1 # Wait for fake ssh to create this file
     done
-    rm "$GAME_DIR/mission1_complete" # Clean up
+    rm "./mission1_complete" # Clean up
     set_mission_level 2
     echo "Mission 1 complete. Proceeding to Mission 2."
     press_any_key
@@ -183,12 +185,12 @@ mission2_recon() {
     echo "for temporary files, sometimes exploited by attackers."
     echo "Try listing processes and inspecting the /tmp directory."
     echo ""
-    echo "Navigate to the mission directory: cd ~/game/mission2"
+    echo "Navigate to the mission directory: cd ./mission2"
     echo ""
 
     # Create rogue process file
-    mkdir -p "$GAME_DIR/mission2"
-    cat << 'EOF2' > "$GAME_DIR/mission2/rogue_process.py"
+    mkdir -p "./mission2"
+    cat << 'EOF_M2_ROGUE_PROCESS' > "./mission2/rogue_process.py"
 #!/usr/bin/env python3
 # This is a simulated rogue process.
 # It doesn't do anything real, just exists for the game.
@@ -198,21 +200,19 @@ import os
 with open("/tmp/system_log_corrupt.txt", "w") as f:
     f.write("Corrupted log entry: [CRITICAL] Data integrity breach detected.\n")
 time.sleep(1)
-# Signal for game progression (this file is touched by the fake ps aux command now)
-# open(os.path.expanduser("~/game/mission2_complete"), 'a').close() # No longer needed here
-EOF2
-    chmod +x "$GAME_DIR/mission2/rogue_process.py"
+EOF_M2_ROGUE_PROCESS
+    chmod +x "./mission2/rogue_process.py"
 
     # Create a fake /tmp for the game context
-    mkdir -p "$GAME_DIR/mission2/tmp"
-    ln -s "$GAME_DIR/mission2/rogue_process.py" "$GAME_DIR/mission2/tmp/rogue_process.py"
+    mkdir -p "./mission2/tmp"
+    ln -s "./mission2/rogue_process.py" "./mission2/tmp/rogue_process.py"
 
 
-    while [[ ! -f "$GAME_DIR/mission2_complete" ]]; do
+    while [[ ! -f "./mission2_complete" ]]; do
         echo "Waiting for you to discover the rogue process by running 'ps aux'..."
         sleep 2
     done
-    rm "$GAME_DIR/mission2_complete"
+    rm "./mission2_complete"
     set_mission_level 3
     echo "Mission 2 complete. Proceeding to Mission 3."
     press_any_key
@@ -229,39 +229,39 @@ mission3_devops() {
     echo "        Find 'critical_runner_template', rename it to '.desktop', make it executable,"
     echo "        and then run the command specified in its 'Exec=' line."
     echo ""
-    echo "Navigate to the mission directory: cd ~/game/mission3"
+    echo "Navigate to the mission directory: cd ./mission3"
     echo ""
 
-    mkdir -p "$GAME_DIR/mission3"
-    cat << 'EOF2' > "$GAME_DIR/mission3/docker_logs.txt"
+    mkdir -p "./mission3"
+    cat << 'EOF_M3_DOCKER_LOGS' > "./mission3/docker_logs.txt"
 [2025-07-08 10:00:01] AI-CORE: Initializing...
 [2025-07-08 10:00:05] AI-CORE: Loading models...
 [2025-07-08 10:00:10] AI-CORE: ERROR - Failed to load 'anomaly_detection_module'. Config mismatch.
 [2025-07-08 10:00:11] AI-CORE: Warning: Running in degraded mode.
 [2025-07-08 10:00:15] AI-CORE: Processing data stream...
 [2025-07-08 10:00:20] AI-CORE: ERROR - Malformed input detected. Skipping.
-EOF2
+EOF_M3_DOCKER_LOGS
 
-    cat << 'EOF2' > "$GAME_DIR/mission3/critical_runner.desktop.template"
+    cat << 'EOF_M3_CRITICAL_RUNNER_TEMPLATE' > "./mission3/critical_runner.desktop.template"
 [Desktop Entry]
 Version=1.0
 Type=Application
 Name=Critical System Runner
 Comment=Launches the critical system runner for AI integration
-Exec=/bin/bash -c "echo 'Critical Runner Launched! AI System re-synced.' && touch ~/game/mission3_complete"
+Exec=/bin/bash -c "echo 'Critical Runner Launched! AI System re-synced.' && touch $(pwd)/mission3_complete" # Use $(pwd) for absolute path
 Icon=system-run
 Terminal=false
 Categories=System;
-EOF2
+EOF_M3_CRITICAL_RUNNER_TEMPLATE
     # Remove the .desktop extension to simulate it being "missing"
-    mv "$GAME_DIR/mission3/critical_runner.desktop.template" "$GAME_DIR/mission3/critical_runner_template"
+    mv "./mission3/critical_runner.desktop.template" "./mission3/critical_runner_template"
 
 
-    while [[ ! -f "$GAME_DIR/mission3_complete" ]]; do
+    while [[ ! -f "./mission3_complete" ]]; do
         echo "Waiting for you to fix the Docker issue and launch the runner..."
         sleep 2
     done
-    rm "$GAME_DIR/mission3_complete"
+    rm "./mission3_complete"
     set_mission_level 4
     echo "Mission 3 complete. Proceeding to Mission 4."
     press_any_key
@@ -275,15 +275,15 @@ mission4_ai_anomaly() {
     echo "There's also a web-based dashboard for AI status."
     echo ""
     echo "Hint: Find and fix the AI configuration file. Then, open the HTML dashboard."
-    echo "The configuration might be in '~/game/mission4/ai_config.json'."
-    echo "The dashboard is at '~/game/mission4/www/index.html'."
+    echo "The configuration might be in './mission4/ai_config.json'."
+    echo "The dashboard is at './mission4/www/index.html'."
     echo "You can open HTML files in your browser using 'xdg-open'."
     echo ""
-    echo "Navigate to the mission directory: cd ~/game/mission4"
+    echo "Navigate to the mission directory: cd ./mission4"
     echo ""
 
-    mkdir -p "$GAME_DIR/mission4/www"
-    cat << 'EOF2' > "$GAME_DIR/mission4/ai_config.json"
+    mkdir -p "./mission4/www"
+    cat << 'EOF_M4_AI_CONFIG_JSON' > "./mission4/ai_config.json"
 {
     "ai_modules": [
         "core_logic",
@@ -296,9 +296,9 @@ mission4_ai_anomaly() {
         "warning": 0.5
     }
 }
-EOF2
+EOF_M4_AI_CONFIG_JSON
 
-    cat << 'EOF2' > "$GAME_DIR/mission4/www/index.html"
+    cat << 'EOF_M4_INDEX_HTML' > "./mission4/www/index.html"
 <!DOCTYPE html>
 <html>
 <head>
@@ -328,10 +328,10 @@ EOF2
     </div>
 </body>
 </html>
-EOF2
+EOF_M4_INDEX_HTML
 
     # Updated HTML after config fix
-    cat << 'EOF2' > "$GAME_DIR/mission4/www/index_fixed.html"
+    cat << 'EOF_M4_INDEX_FIXED_HTML' > "./mission4/www/index_fixed.html"
 <!DOCTYPE html>
 <html>
 <head>
@@ -361,16 +361,16 @@ EOF2
     </div>
 </body>
 </html>
-EOF2
+EOF_M4_INDEX_FIXED_HTML
 
 
-    while grep -q "anomaly_detector_DISABLED" "$GAME_DIR/mission4/ai_config.json"; do
+    while grep -q "anomaly_detector_DISABLED" "./mission4/ai_config.json"; do
         echo "Waiting for you to fix 'ai_config.json'..."
         sleep 2
     done
     echo "AI configuration fixed! Check the dashboard."
     # Replace the original index.html with the fixed one
-    mv "$GAME_DIR/mission4/www/index_fixed.html" "$GAME_DIR/mission4/www/index.html"
+    mv "./mission4/www/index_fixed.html" "./mission4/www/index.html"
     # Player needs to manually open and confirm
     press_any_key # Player presses key after seeing fixed dashboard
     set_mission_level 5
@@ -385,15 +385,15 @@ mission5_data_leak() {
     echo "Investigation points to an unauthorized data transfer. A CSV file"
     echo "was found with unusual entries."
     echo ""
-    echo "Hint: Examine '~/game/mission5/leaked_data.csv'. Look for anomalies."
+    echo "Hint: Examine './mission5/leaked_data.csv'. Look for anomalies."
     echo "The source might be indicated by unusual entries or timestamps."
     echo "You might need to use 'cat' or 'less' to view the file content."
     echo ""
-    echo "Navigate to the mission directory: cd ~/game/mission5"
+    echo "Navigate to the mission directory: cd ./mission5"
     echo ""
 
-    mkdir -p "$GAME_DIR/mission5"
-    cat << 'EOF2' > "$GAME_DIR/mission5/leaked_data.csv"
+    mkdir -p "./mission5"
+    cat << 'EOF_M5_LEAKED_DATA_CSV' > "./mission5/leaked_data.csv"
 Timestamp,UserID,Action,DataSizeKB,SourceIP
 2025-07-07 10:01:05,user123,login,0.5,192.168.1.10
 2025-07-07 10:05:30,admin,report_gen,1.2,192.168.1.15
@@ -401,7 +401,7 @@ Timestamp,UserID,Action,DataSizeKB,SourceIP
 2025-07-08 14:15:00,SYSTEM_ROGUE,data_exfil,1024.0,203.0.113.42
 2025-07-08 14:15:01,SYSTEM_ROGUE,data_exfil,2048.0,203.0.113.42
 2025-07-08 14:16:00,user789,logout,0.2,192.168.1.25
-EOF2
+EOF_M5_LEAKED_DATA_CSV
 
     # Player needs to find "SYSTEM_ROGUE" and "203.0.113.42"
     echo "Identify the rogue user and IP address from the CSV. Type them when ready."
@@ -429,14 +429,14 @@ mission6_final_fix() {
     echo "You've identified and mitigated several issues. Now, it's time for the final cleanup."
     echo "A patch script has been prepared to restore all compromised settings."
     echo ""
-    echo "Hint: Execute '~/game/mission6/patch_script.sh'."
+    echo "Hint: Execute './mission6/patch_script.sh'."
     echo "This script will simulate full system restoration."
     echo ""
-    echo "Navigate to the mission directory: cd ~/game/mission6"
+    echo "Navigate to the mission directory: cd ./mission6"
     echo ""
 
-    mkdir -p "$GAME_DIR/mission6"
-    cat << 'EOF2' > "$GAME_DIR/mission6/patch_script.sh"
+    mkdir -p "./mission6"
+    cat << 'EOF_M6_PATCH_SCRIPT' > "./mission6/patch_script.sh"
 #!/bin/bash
 echo "Applying security patch..."
 sleep 1
@@ -450,15 +450,15 @@ echo "System integrity check: OK"
 echo "Node 127.4.7.8 is now fully restored and secured."
 echo "--- GAME OVER: MISSION ACCOMPLISHED! ---"
 # Signal game completion
-touch ~/game/mission6_complete
-EOF2
-    chmod +x "$GAME_DIR/mission6/patch_script.sh"
+touch "$(pwd)/mission6_complete" # Use $(pwd) for absolute path
+EOF_M6_PATCH_SCRIPT
+    chmod +x "./mission6/patch_script.sh"
 
-    while [[ ! -f "$GAME_DIR/mission6_complete" ]]; do
+    while [[ ! -f "./mission6_complete" ]]; do
         echo "Waiting for you to run the patch script..."
         sleep 2
     done
-    rm "$GAME_DIR/mission6_complete"
+    rm "./mission6_complete"
     set_mission_level 7
     echo "Congratulations! You have successfully completed THE PROTOCOL."
     press_any_key
@@ -467,14 +467,14 @@ EOF2
 mission7_complete() {
     clear_screen
     echo "====================================================="
-    echo "       THE PROTOCOL – Breach of Node 127.4.7.8"
-    echo "               MISSION ACCOMPLISHED!"
+    echo "          THE PROTOCOL – Breach of Node 127.4.7.8"
+    echo "                MISSION ACCOMPLISHED!"
     echo "====================================================="
     echo ""
     echo "You have successfully neutralized the threat and restored Node 127.4.7.8."
     echo "Thank you for playing!"
     echo ""
-    echo "To play again, delete the 'game.env' file: rm ~/game/tools/game.env"
+    echo "To play again, delete the 'game.env' file: rm ./tools/game.env"
     echo ""
     press_any_key
 }
@@ -493,15 +493,15 @@ case "$CURRENT_LEVEL" in
     7) mission7_complete ;;
     *) echo "Unknown game level: $CURRENT_LEVEL" ;;
 esac
-EOF
+EOF_RUN_SH
 chmod +x "$GAME_DIR/run.sh"
 echo "✅ Created run.sh."
 
 # 5. Create assistant.sh
-cat << 'EOF' > "$GAME_DIR/assistant.sh"
+cat << 'EOF_ASSISTANT_SH' > "$GAME_DIR/assistant.sh"
 #!/bin/bash
 
-GAME_DIR="$HOME/game"
+GAME_DIR="$(pwd)" # This script runs from the game's root directory
 GAME_ENV_FILE="$GAME_DIR/tools/game.env"
 
 # Function to get the current mission level
@@ -519,7 +519,7 @@ echo "  AI Assistant: Node 127.4.7.8 Support"
 echo "========================================="
 echo "Hello, Analyst! I'm here to provide guidance and insights as you navigate"
 echo "THE PROTOCOL. I'll try to keep you on track without giving away too much."
-echo "Remember to always 'cd ~/game' to be in the correct working directory."
+echo "Remember to always 'cd' into the game's root directory before running commands."
 echo ""
 
 PREV_LEVEL=-1 # Initialize with a level that won't match immediately
@@ -540,7 +540,7 @@ while true; do
                 echo "Mission 1: Infiltration. Your first challenge is to get inside Node 127.4.7.8."
                 echo "Think about how you'd normally discover open doors on a network."
                 echo "Hint: There's a common tool for network scanning, and another for secure remote access."
-                echo "Check the 'mission1' directory for any clues, like 'creds.txt'."
+                echo "Check the './mission1' directory for any clues, like 'creds.txt'."
                 echo "What NOT to do: Don't try to brute-force passwords! We're looking for a specific, provided credential here."
                 echo "Also, don't try to connect to real external IPs; stick to 127.0.0.1."
                 ;;
@@ -548,7 +548,7 @@ while true; do
                 echo "Mission 2: Reconnaissance. You're in! Excellent work."
                 echo "Now, it's time to survey the landscape. We suspect a rogue process is running."
                 echo "Hint: How do you list all running programs on a Linux system? And where do attackers often drop temporary, malicious files?"
-                echo "Look around in the '/tmp' area (simulated in '~/game/mission2/tmp')."
+                echo "Look around in the '/tmp' area (simulated in './mission2/tmp')."
                 echo "What NOT to do: Don't delete files blindly! Always inspect first. You might remove a crucial clue."
                 ;;
             3)
@@ -581,7 +581,7 @@ while true; do
                 echo "Congratulations, Analyst! Mission Accomplished!"
                 echo "Node 127.4.7.8 is secure, thanks to your diligent work. You've successfully navigated THE PROTOCOL."
                 echo "What NOT to do: Don't forget what you've learned! These concepts are fundamental in cybersecurity."
-                echo "If you want to play again, just delete the 'game.env' file in '~/game/tools/'."
+                echo "If you want to play again, just delete the 'game.env' file in './tools/'."
                 ;;
             *)
                 echo "Assistant is online, standing by for your next move. Current level: Unknown. Are you sure you're running 'run.sh'?"
@@ -593,7 +593,7 @@ while true; do
     fi
     sleep 5 # Check every 5 seconds
 done
-EOF
+EOF_ASSISTANT_SH
 chmod +x "$GAME_DIR/assistant.sh"
 echo "✅ Created assistant.sh."
 
@@ -601,10 +601,10 @@ echo "✅ Created assistant.sh."
 echo "Creating mission directories and files..."
 
 mkdir -p "$GAME_DIR/mission1"
-cat << 'EOF' > "$GAME_DIR/mission1/creds.txt"
+cat << 'EOF_M1_CREDS' > "$GAME_DIR/mission1/creds.txt"
 username: admin
 password: protocol_breach_2025
-EOF
+EOF_M1_CREDS
 echo "✅ Created mission1/creds.txt"
 
 mkdir -p "$GAME_DIR/mission2"
@@ -631,7 +631,7 @@ echo "✅ Created mission6 directory."
 echo "Creating symlinks for fake commands..."
 (
     cd "$TOOLS_DIR" || exit 1 # Exit if cd fails
-    ln -sf fake-commands.sh nmap   # -f to force overwrite if symlink exists
+    ln -sf fake-commands.sh nmap    # -f to force overwrite if symlink exists
     ln -sf fake-commands.sh ssh
     ln -sf fake-commands.sh ps
     ln -sf fake-commands.sh docker
@@ -646,17 +646,15 @@ echo ""
 echo "🔥 IMPORTANT: Before playing, you MUST run the following command"
 echo "   in EACH terminal session where you will interact with the game:"
 echo ""
-echo "   export PATH=\"$HOME/game/tools:\$PATH\""
+echo "   export PATH=\"./tools:\$PATH\"" # Updated PATH instruction for current directory
 echo ""
 echo "   This tells your terminal where to find the game's fake commands."
 echo ""
 echo "▶️ To start the game (main terminal):"
-echo "   cd ~/game"
-echo "   ./run.sh"
+echo "   ./run.sh" # No need to 'cd' if already in the game's directory
 echo ""
 echo "🤖 To start the AI assistant (optional, in a separate terminal):"
-echo "   cd ~/game"
-echo "   ./assistant.sh"
+echo "   ./assistant.sh" # No need to 'cd' if already in the game's directory
 echo ""
 echo "Good luck, Analyst! The Protocol awaits."
 echo "====================================================="
