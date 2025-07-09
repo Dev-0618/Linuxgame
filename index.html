@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev-0618 | Linuxgame Repository</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for futuristic glow and font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d1a; /* Very dark blue/purple */
+            color: #e0e0e0; /* Light grey for text */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        .futuristic-gradient {
+            background: linear-gradient(45deg, #4a00e0, #8e2de2, #4a00e0); /* Purple to blue gradient */
+            background-size: 200% 200%;
+            animation: gradient-animation 10s ease infinite;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glow-text {
+            text-shadow: 0 0 5px #a78bfa, 0 0 10px #a78bfa, 0 0 15px #a78bfa; /* Soft purple glow */
+        }
+
+        .glow-border {
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, #a78bfa, #8e2de2, #a78bfa) 1;
+            box-shadow: 0 0 15px rgba(167, 139, 250, 0.7); /* Stronger glow for elements */
+        }
+
+        .card-bg {
+            background-color: #1a1a2e; /* Slightly lighter dark background for cards */
+        }
+
+        .neon-button {
+            background: linear-gradient(90deg, #4a00e0, #8e2de2);
+            box-shadow: 0 0 10px #8e2de2, 0 0 20px #8e2de2, 0 0 30px #8e2de2;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .neon-button:hover {
+            box-shadow: 0 0 15px #8e2de2, 0 0 30px #8e2de2, 0 0 40px #8e2de2;
+            transform: translateY(-2px);
+        }
+
+        /* Subtle background grid pattern */
+        .grid-background {
+            background-image: linear-gradient(to right, #1a1a2e 1px, transparent 1px),
+                              linear-gradient(to bottom, #1a1a2e 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: -1px -1px;
+        }
+
+        /* Responsive adjustments for game cards */
+        @media (max-width: 768px) {
+            .game-grid {
+                grid-template-columns: 1fr; /* Single column on small screens */
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center relative grid-background">
+
+    <!-- Header Section -->
+    <header class="w-full py-8 text-center relative z-10">
+        <h1 class="text-5xl md:text-7xl font-bold text-white glow-text font-orbitron">
+            <span class="text-purple-400">DEV-0618</span> // LINUXGAME
+        </h1>
+        <p class="mt-4 text-xl md:text-2xl text-gray-300">
+            Simulated Technical Challenges for Aspiring Analysts
+        </p>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow w-full max-w-6xl p-6 md:p-10 relative z-10">
+
+        <!-- Welcome Section -->
+        <section class="mb-16 card-bg rounded-xl shadow-lg glow-border p-8 md:p-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-purple-300 mb-6 font-orbitron">
+                <span class="text-purple-400">_</span>WELCOME TO THE SIMULATION
+            </h2>
+            <p class="text-lg text-gray-200 leading-relaxed">
+                Step into a world where cybersecurity challenges meet interactive learning. The Dev-0618 Linuxgame repository offers a series of beginner-friendly technical simulations designed to sharpen your skills in Linux, DevOps, AI, and data analysis. No real services, no complex setups – just pure command-line and simulated GUI exploration.
+            </p>
+            <p class="mt-4 text-lg text-gray-200 leading-relaxed">
+                Are you ready to breach the protocol, uncover anomalies, and restore system integrity? Your journey begins here.
+            </p>
+        </section>
+
+        <!-- Our Games Section -->
+        <section class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-purple-300 mb-10 text-center font-orbitron">
+                <span class="text-purple-400">_</span>OUR GAMES
+            </h2>
+
+            <div class="game-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- Game Card: THE PROTOCOL -->
+                <div class="card-bg rounded-xl shadow-lg glow-border p-6 flex flex-col items-center text-center">
+                    <h3 class="text-2xl font-bold text-purple-300 mb-3 font-orbitron">
+                        THE PROTOCOL
+                    </h3>
+                    <p class="text-gray-300 text-lg mb-4">
+                        **Breach of Node 127.4.7.8**
+                    </p>
+                    <p class="text-gray-400 text-base leading-relaxed flex-grow">
+                        Infiltrate a compromised system, discover rogue processes, fix AI misconfigurations, and analyze data leaks. This game introduces fundamental cybersecurity concepts through hands-on terminal interaction.
+                    </p>
+                    <a href="https://github.com/Dev-0618/Linuxgame/tree/main/the-protocol"
+                       target="_blank"
+                       class="mt-6 px-8 py-3 rounded-full text-white font-semibold neon-button hover:scale-105 transition-transform duration-300">
+                        Play THE PROTOCOL
+                    </a>
+                </div>
+
+                <!-- Placeholder for Future Game 1 -->
+                <div class="card-bg rounded-xl shadow-lg glow-border p-6 flex flex-col items-center text-center opacity-70">
+                    <h3 class="text-2xl font-bold text-gray-500 mb-3 font-orbitron">
+                        [UPCOMING GAME]
+                    </h3>
+                    <p class="text-gray-600 text-lg mb-4">
+                        **Simulated WiFi Hacking**
+                    </p>
+                    <p class="text-gray-700 text-base leading-relaxed flex-grow">
+                        (Details coming soon!) Prepare to delve into network security, simulating common WiFi vulnerabilities and attack vectors in a safe, controlled environment.
+                    </p>
+                    <button disabled
+                            class="mt-6 px-8 py-3 rounded-full bg-gray-700 text-gray-500 font-semibold cursor-not-allowed">
+                        Coming Soon
+                    </button>
+                </div>
+
+                <!-- Placeholder for Future Game 2 -->
+                <div class="card-bg rounded-xl shadow-lg glow-border p-6 flex flex-col items-center text-center opacity-70">
+                    <h3 class="text-2xl font-bold text-gray-500 mb-3 font-orbitron">
+                        [UPCOMING GAME]
+                    </h3>
+                    <p class="text-gray-600 text-lg mb-4">
+                        **More Simulations...**
+                    </p>
+                    <p class="text-gray-700 text-base leading-relaxed flex-grow">
+                        (Details coming soon!) We're constantly expanding our library of interactive technical challenges. Stay tuned for more immersive learning experiences!
+                    </p>
+                    <button disabled
+                            class="mt-6 px-8 py-3 rounded-full bg-gray-700 text-gray-500 font-semibold cursor-not-allowed">
+                        Coming Soon
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="mb-16 card-bg rounded-xl shadow-lg glow-border p-8 md:p-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-purple-300 mb-6 font-orbitron">
+                <span class="text-purple-400">_</span>ABOUT THIS PROJECT
+            </h2>
+            <p class="text-lg text-gray-200 leading-relaxed">
+                The `Linuxgame` repository is a passion project by Dev-0618, aimed at making complex technical concepts accessible and fun. By creating simulated environments, we provide a risk-free space for beginners to experiment, learn, and build confidence in their cybersecurity and Linux skills.
+            </p>
+            <p class="mt-4 text-lg text-gray-200 leading-relaxed">
+                Contributions and feedback are welcome! Explore the repository, play the games, and join us in building a community of curious learners.
+            </p>
+            <a href="https://github.com/Dev-0618/Linuxgame/" target="_blank"
+               class="mt-6 inline-block px-8 py-3 rounded-full text-white font-semibold neon-button hover:scale-105 transition-transform duration-300">
+                Visit GitHub Repository
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="w-full py-6 text-center text-gray-500 text-sm relative z-10">
+        &copy; 2025 Dev-0618. All rights reserved.
+    </footer>
+
+    <script>
+        // Simple JS for potential future interactive elements
+        // Currently, no complex JS is needed for this static page.
+        // The glow effects are primarily CSS-driven.
+    </script>
+</body>
+</html>
